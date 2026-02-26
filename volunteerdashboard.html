@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Volunteer Dashboard</title>
+<style>
+:root{
+--bg1:#0f2027;
+--bg2:#203a43;
+--bg3:#2c5364;
+--accent:#00f5d4;
+--glass:rgba(255,255,255,0.05);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+min-height:100vh;
+background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+color:white;
+padding:40px;
+animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+
+h1{
+color:var(--accent);
+margin-bottom:20px;
+letter-spacing:1px;
+}
+
+.card{
+background:var(--glass);
+backdrop-filter:blur(10px);
+padding:20px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+margin-bottom:20px;
+animation:slideUp 0.8s ease;
+}
+
+@keyframes slideUp{
+from{transform:translateY(40px);opacity:0}
+to{transform:translateY(0);opacity:1}
+}
+
+input, select{
+padding:12px;
+margin:8px 5px;
+border:none;
+border-radius:8px;
+outline:none;
+}
+
+button{
+padding:12px 18px;
+background:var(--accent);
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 15px var(--accent);
+}
+
+table{
+width:100%;
+margin-top:15px;
+border-collapse:collapse;
+}
+
+th, td{
+padding:12px;
+text-align:left;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+tr{
+transition:0.3s;
+}
+
+tr:hover{
+background:rgba(255,255,255,0.05);
+}
+
+.stats{
+margin-top:15px;
+font-weight:bold;
+color:var(--accent);
+}
+</style>
+</head>
+<body>
+
+<h1>Volunteer Management Dashboard</h1>
+
+<div class="card">
+<input type="text" id="name" placeholder="Volunteer Name">
+<select id="status">
+<option>Interested</option>
+<option>Active</option>
+<option>Inactive</option>
+</select>
+<button onclick="addVolunteer()">Add</button>
+</div>
+
+<div class="card">
+<input type="text" id="search" placeholder="Search..." onkeyup="renderTable()">
+<select id="filter" onchange="renderTable()">
+<option value="All">All</option>
+<option value="Interested">Interested</option>
+<option value="Active">Active</option>
+<option value="Inactive">Inactive</option>
+</select>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div class="stats" id="stats"></div>
+</div>
+
+<script>
+let volunteers = JSON.parse(localStorage.getItem("volunteers")) || [];
+
+function saveData(){
+localStorage.setItem("volunteers", JSON.stringify(volunteers));
+}
+
+function addVolunteer(){
+let name = document.getElementById("name").value;
+let status = document.getElementById("status").value;
+if(name==="") return;
+volunteers.push({name,status});
+saveData();
+renderTable();
+document.getElementById("name").value="";
+}
+
+function renderTable(){
+let table=document.getElementById("tableBody");
+let search=document.getElementById("search").value.toLowerCase();
+let filter=document.getElementById("filter").value;
+
+table.innerHTML="";
+
+let filtered=volunteers.filter(v =>
+v.name.toLowerCase().includes(search) &&
+(filter==="All" || v.status===filter)
+);
+
+filtered.forEach(v=>{
+table.innerHTML+=`<tr>
+<td>${v.name}</td>
+<td>${v.status}</td>
+</tr>`;
+});
+
+document.getElementById("stats").innerText=
+"Total: "+volunteers.length+" | Showing: "+filtered.length;
+}
+
+renderTable();
+</script>
+
+</body>
+  </html>
